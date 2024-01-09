@@ -4,6 +4,7 @@ let cells = document.querySelectorAll(".cell");
 let cellsArray = [...cells];
 let system = document.querySelector(".system-text")
 let gameOver = false;
+let isDraw = false;
 
 // Ajoute la fonction pour remplir les cases à chaque case
 cellsArray.forEach(cell => cell.addEventListener("click", () => { FillCell(cell) }))
@@ -14,21 +15,36 @@ function FillCell(cell) {
 
         if (cell.textContent == "") {
             cell.textContent = turn;
-        }
 
-        // Vérifie si le joueur gagne
-        if (CheckWin() === false) {
-            if (turn === "X") {
-                turn = "O";
+
+            // Vérifie si le joueur gagne
+            if (CheckWin() === false) {
+                // Vérifie si il reste des cases vide sur la grille. Si oui, alors pas de match nul
+                for (let cellContent of cellsArray) {
+                    if (cellContent.textContent == "") {
+                        isDraw = false;
+                        break;
+                    }
+                    isDraw = true;
+                }
+
+                // Si pas de match nul, passe au tour suivant
+                if (isDraw === false) {
+                    turn = turn === "X" ? "O" : "X";
+                    system.textContent = "Au tour de " + turn;
+                }
+                // Sinon bloque le jeu
+                else {
+                    gameOver = true;
+                    system.textContent = "Match nul ! Appuyez sur F5 pour recommencer."
+                }
             }
+
+
             else {
-                turn = "X";
+                gameOver = true;
+                system.textContent = `Le joueur ${turn} à gagné ! Appuyez sur F5 pour recommencer.`
             }
-            system.textContent = "Au tour de " + turn;
-        }
-        else {
-            gameOver = true;
-            system.textContent = `Le joueur ${turn} à gagné ! Appuyez sur F5 pour recommencer.`
         }
     }
 }
@@ -51,6 +67,11 @@ function CheckWin() {
         if (cellsArray[a].textContent !== "" &&
             cellsArray[a].textContent === cellsArray[b].textContent &&
             cellsArray[a].textContent === cellsArray[c].textContent) {
+
+            // Colorie la composition gagnante
+            cellsArray[a].style.color = "yellow";
+            cellsArray[b].style.color = "yellow";
+            cellsArray[c].style.color = "yellow";
             return true;
         }
     }
